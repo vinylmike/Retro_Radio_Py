@@ -21,10 +21,10 @@ class RadioController:
             json.dump(self.stations, f, indent=2)
 
     def play_station(self, index):
-        self.stop()  # Stop current playback
+        self.stop()
         self.current_index = index
         url = self.stations[index]['url']
-        print(f"Playing station: {self.stations[index]['name']} ({url})")
+        print(f"🔊 Playing: {self.stations[index]['name']} ({url})")
         self.mpv_process = subprocess.Popen(
             ['mpv', '--no-video', url],
             stdout=subprocess.DEVNULL,
@@ -33,20 +33,27 @@ class RadioController:
 
     def stop(self):
         if self.mpv_process:
-            print("Stopping station.")
+            print("🛑 Stopping playback")
             self.mpv_process.terminate()
+            self.mpv_process.wait()
             self.mpv_process = None
 
     def next_station(self):
+        if not self.stations:
+            return
         self.current_index = (self.current_index + 1) % len(self.stations)
         self.play_station(self.current_index)
 
     def prev_station(self):
+        if not self.stations:
+            return
         self.current_index = (self.current_index - 1) % len(self.stations)
         self.play_station(self.current_index)
 
     def get_current_station(self):
-        return self.stations[self.current_index]
+        if self.stations:
+            return self.stations[self.current_index]
+        return {"name": "No Stations", "url": ""}
 
     def add_station(self, name, url):
         if len(self.stations) < 10:
@@ -57,7 +64,7 @@ class RadioController:
 
     def remove_station(self, index):
         if 0 <= index < len(self.stations):
-            del self.stations[index]
+            self.stations.pop(index)
             self.save_stations()
             return True
         return False

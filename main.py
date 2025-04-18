@@ -9,7 +9,7 @@ app = Flask(
 
 controller = RadioController()
 
-# 🔊 Auto-play the first station on startup if any are available
+# Autoplay the first station on boot if available
 if controller.stations:
     controller.play_station(0)
 
@@ -41,8 +41,7 @@ def prev_station():
 
 @app.route('/edit')
 def edit():
-    stations = controller.stations
-    return render_template('edit.html', stations=stations)
+    return render_template('edit.html', stations=controller.stations)
 
 @app.route('/add', methods=['POST'])
 def add():
