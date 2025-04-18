@@ -9,6 +9,10 @@ app = Flask(
 
 controller = RadioController()
 
+# 🔊 Auto-play the first station on startup if any are available
+if controller.stations:
+    controller.play_station(0)
+
 @app.route('/')
 def index():
     stations = controller.stations
