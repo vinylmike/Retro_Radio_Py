@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Stations - Retro Radio Py</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Retro Radio Py</h2>
+      <a href="/" class="edit-link">← Back</a>
+    </aside>
+
+    <main class="player">
+      <h1>Edit Stations</h1>
+
+      {% if stations|length < 10 %}
+      <form method="POST" action="/add" class="station-form">
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="text" name="url" placeholder="Stream URL" required>
+        <button type="submit">+ Add</button>
+      </form>
+      {% else %}
+      <p>🚫 Max 10 stations reached.</p>
+      {% endif %}
+
+      <ul class="station-list">
+        {% for s in stations %}
+        <li>
+          <div class="station-name">{{ s.name }}</div>
+          <div class="station-actions">
+            <form method="POST" action="/remove">
+              <input type="hidden" name="index" value="{{ loop.index0 }}">
+              <button type="submit" class="remove-btn">Remove</button>
+            </form>
+            <button onclick="openEditModal('{{ loop.index0 }}', '{{ s.name }}', '{{ s.url }}')">Edit</button>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </main>
+  </div>
+
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h2>Edit Station</h2>
+      <form method="POST" action="/update">
+        <input type="hidden" name="index" id="edit-index">
+        <input type="text" name="name" id="edit-name" required>
+        <input type="text" name="url" id="edit-url" required>
+        <button type="submit">💾 Save</button>
+        <button type="button" onclick="closeEditModal()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openEditModal(index, name, url) {
+      const modal = document.getElementById("editModal");
+      modal.classList.add("show");
+      document.getElementById("edit-index").value = index;
+      document.getElementById("edit-name").value = name;
+      document.getElementById("edit-url").value = url;
+    }
+    function closeEditModal() {
+      document.getElementById("editModal").classList.remove("show");
+    }
+  </script>
+</body>
+</html>

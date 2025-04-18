@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ station.name }} - Retro Radio Py</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Stations</h2>
+      <ul class="station-list">
+        {% for s in stations %}
+        <li {% if s.name == station.name %}class="active"{% endif %}>
+          <a href="/play/{{ loop.index0 }}">{{ s.name }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+      <a href="/edit" class="edit-link">Edit Stations</a>
+    </aside>
+
+    <main class="player">
+      <h1>{{ station.name }}</h1>
+
+      <img src="/static/radio-icon.png" alt="Station" style="width: 100px; margin: 20px 0;">
+
+      <div class="controls">
+        <a href="/play/{{ stations.index(station) }}"><button>▶ Play</button></a>
+        <a href="/stop"><button>⏹ Stop</button></a>
+        <a href="/prev"><button>⏮ Prev</button></a>
+        <a href="/next"><button>⏭ Next</button></a>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
