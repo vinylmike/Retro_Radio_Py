@@ -1,23 +1,14 @@
 from flask import Flask, render_template, redirect, request
 from radio_controller import RadioController
 
-app = Flask(
-    __name__,
-    template_folder='app/templates',
-    static_folder='app/static'
-)
-
+app = Flask(__name__, template_folder='app/templates', static_folder='app/static')
 controller = RadioController()
-
-# Autoplay the first station on boot if available
-if controller.stations:
-    controller.play_station(0)
 
 @app.route('/')
 def index():
     stations = controller.stations
-    current_station = controller.get_current_station() if stations else {"name": "No Stations", "url": ""}
-    return render_template("index.html", station=current_station, stations=stations)
+    current_station = controller.get_current_station()
+    return render_template('index.html', stations=stations, station=current_station)
 
 @app.route('/play/<int:index>')
 def play(index):
@@ -65,4 +56,5 @@ def update():
     return redirect('/edit')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    controller.auto_play_first()
+    app.run(host='0.0.0.0', port=5000)
