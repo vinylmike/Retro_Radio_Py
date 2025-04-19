@@ -36,6 +36,7 @@ def extract_metadata(filepath):
                 # Look for album art
                 if audio.tags.get('APIC'):
                     metadata["album_art"] = audio.tags['APIC'][0]
+                    print(f"Album art for {filepath}: {metadata['album_art']}")  # Print to check if album art exists
     except Exception as e:
         print(f"[Metadata Error] {filepath}: {e}")
     return metadata
