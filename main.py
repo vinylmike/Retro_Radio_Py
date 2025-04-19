@@ -89,12 +89,31 @@ def stop_track():
     if os.path.exists(ipc_socket_path):
         os.remove(ipc_socket_path)
 
+# Function to get current time and remaining time from MPV
+def get_playback_status():
+    try:
+        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        client.connect(ipc_socket_path)
+        client.send((json.dumps({"command": ["get_property", "time-pos"]}) + '\n').encode())
+        response = client.recv(1024).decode()
+        time_pos = json.loads(response).get("data", 0)
+        client.close()
+        return time_pos
+    except Exception as e:
+        print(f"[MPV IPC Error] {e}")
+        return 0
+
 @app.route("/")
 def index():
     global track_list
     track_list = get_music_files()
     now_playing_metadata = next((t for t in track_list if t["filename"] == current_track), None)
-    return render_template("index.html", tracks=track_list, current=now_playing_metadata, volume=volume_level)
+    current_time = get_playback_status()
+    remaining_time = None
+    if now_playing_metadata and current_time:
+        total_seconds = int(current_time)
+        remaining_time = int(now_playing_metadata["duration"]) - total_seconds
+    return render_template("index.html", tracks=track_list, current=now_playing_metadata, volume=volume_level, current_time=current_time, remaining_time=remaining_time)
 
 @app.route("/play/<filename>")
 def play(filename):

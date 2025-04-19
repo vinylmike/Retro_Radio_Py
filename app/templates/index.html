@@ -110,6 +110,7 @@
       {% if current %}
         <div><strong>{{ current.title or current.filename }}</strong></div>
         <div>{{ current.artist }} &bull; {{ current.album }} &bull; {{ current.duration }}</div>
+        <div>Time Remaining: {{ remaining_time }} seconds</div>
       {% endif %}
 
       <div class="controls">
