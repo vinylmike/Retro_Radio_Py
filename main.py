@@ -19,7 +19,7 @@ current_index = -1
 volume_level = 70
 ipc_socket_path = "/tmp/mpv-socket"
 
-# Extract metadata from audio file
+# Extract metadata from audio file (No Album Art)
 def extract_metadata(filepath):
     metadata = {"filename": os.path.basename(filepath), "title": "", "artist": "", "album": "", "duration": ""}
     try:
@@ -108,12 +108,22 @@ def index():
     global track_list
     track_list = get_music_files()
     now_playing_metadata = next((t for t in track_list if t["filename"] == current_track), None)
+    
     current_time = get_playback_status()
     remaining_time = None
     if now_playing_metadata and current_time:
         total_seconds = int(current_time)
         remaining_time = int(now_playing_metadata["duration"]) - total_seconds
-    return render_template("index.html", tracks=track_list, current=now_playing_metadata, volume=volume_level, current_time=current_time, remaining_time=remaining_time)
+
+    # Add a fallback if `current` or `remaining_time` is missing
+    return render_template(
+        "index.html", 
+        tracks=track_list, 
+        current=now_playing_metadata if now_playing_metadata else {},
+        volume=volume_level,
+        current_time=current_time if current_time else 0,
+        remaining_time=remaining_time if remaining_time else 0
+    )
 
 @app.route("/play/<filename>")
 def play(filename):
