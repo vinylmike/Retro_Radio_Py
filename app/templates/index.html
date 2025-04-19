@@ -37,6 +37,9 @@
       padding: 20px;
       background: linear-gradient(to bottom, #333, #121212);
       border-bottom: 1px solid #333;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     .header h1 {
@@ -97,6 +100,12 @@
       background-color: #1db954;
       color: black;
     }
+
+    .time-remaining {
+      margin-top: 10px;
+      font-size: 1.1em;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -110,7 +119,7 @@
       {% if current %}
         <div><strong>{{ current.title or current.filename }}</strong></div>
         <div>{{ current.artist }} &bull; {{ current.album }} &bull; {{ current.duration }}</div>
-        <div>Time Remaining: {{ remaining_time }} seconds</div>
+        <div class="time-remaining">Time Remaining: {{ remaining_time }} seconds</div>
       {% endif %}
 
       <div class="controls">

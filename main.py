@@ -19,7 +19,7 @@ current_index = -1
 volume_level = 70
 ipc_socket_path = "/tmp/mpv-socket"
 
-# Extract metadata from audio file (No Album Art)
+# Extract metadata from audio file
 def extract_metadata(filepath):
     metadata = {"filename": os.path.basename(filepath), "title": "", "artist": "", "album": "", "duration": ""}
     try:
