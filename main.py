@@ -1,60 +1,43 @@
-from flask import Flask, render_template, redirect, request
-from radio_controller import RadioController
+from flask import Flask, render_template, request, redirect, url_for
+import os
+import subprocess
 
-app = Flask(__name__, template_folder='app/templates', static_folder='app/static')
-controller = RadioController()
+app = Flask(__name__)
 
-@app.route('/')
+MUSIC_FOLDER = "/mnt/share/Pi_Music"
+mpv_process = None
+current_track = None
+
+def get_music_files():
+    return sorted([f for f in os.listdir(MUSIC_FOLDER) if f.lower().endswith(('.mp3', '.wav', '.flac'))])
+
+def play_track(filename):
+    global mpv_process, current_track
+    stop_track()
+    filepath = os.path.join(MUSIC_FOLDER, filename)
+    mpv_process = subprocess.Popen(["mpv", filepath], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    current_track = filename
+
+def stop_track():
+    global mpv_process
+    if mpv_process:
+        mpv_process.terminate()
+        mpv_process = None
+
+@app.route("/")
 def index():
-    stations = controller.stations
-    current_station = controller.get_current_station()
-    return render_template('index.html', stations=stations, station=current_station)
+    files = get_music_files()
+    return render_template("index.html", tracks=files, current=current_track)
 
-@app.route('/play/<int:index>')
-def play(index):
-    controller.play_station(index)
-    return redirect('/')
+@app.route("/play/<filename>")
+def play(filename):
+    play_track(filename)
+    return redirect(url_for("index"))
 
-@app.route('/stop')
+@app.route("/stop")
 def stop():
-    controller.stop()
-    return redirect('/')
+    stop_track()
+    return redirect(url_for("index"))
 
-@app.route('/next')
-def next_station():
-    controller.next_station()
-    return redirect('/')
-
-@app.route('/prev')
-def prev_station():
-    controller.prev_station()
-    return redirect('/')
-
-@app.route('/edit')
-def edit():
-    return render_template('edit.html', stations=controller.stations)
-
-@app.route('/add', methods=['POST'])
-def add():
-    name = request.form.get('name')
-    url = request.form.get('url')
-    controller.add_station(name, url)
-    return redirect('/edit')
-
-@app.route('/remove', methods=['POST'])
-def remove():
-    index = int(request.form.get('index'))
-    controller.remove_station(index)
-    return redirect('/edit')
-
-@app.route('/update', methods=['POST'])
-def update():
-    index = int(request.form.get('index'))
-    name = request.form.get('name')
-    url = request.form.get('url')
-    controller.update_station(index, name, url)
-    return redirect('/edit')
-
-if __name__ == '__main__':
-    controller.auto_play_first()
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

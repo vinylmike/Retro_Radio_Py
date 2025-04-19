@@ -1,36 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>{{ station.name }} - Retro Radio Py</title>
-  <link rel="stylesheet" href="/static/styles.css">
+    <title>Retro Radio Player</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 30px;
+        }
+        h1 {
+            color: #1db954;
+        }
+        .track-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 auto;
+            width: 50%;
+        }
+        .track-list li {
+            margin: 10px 0;
+            background-color: #222;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .track-list a {
+            color: white;
+            text-decoration: none;
+        }
+        .track-list a:hover {
+            color: #1db954;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .current {
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <h2>Stations</h2>
-      <ul class="station-list">
-        {% for s in stations %}
-        <li {% if s.name == station.name %}class="active"{% endif %}>
-          <a href="/play/{{ loop.index0 }}">{{ s.name }}</a>
-        </li>
+    <h1>Retro Radio</h1>
+    {% if current %}
+        <div class="current">🎵 Now Playing: {{ current }}</div>
+    {% endif %}
+    <ul class="track-list">
+        {% for track in tracks %}
+            <li><a href="{{ url_for('play', filename=track) }}">{{ track }}</a></li>
         {% endfor %}
-      </ul>
-      <a href="/edit" class="edit-link">Edit Stations</a>
-    </aside>
-
-    <main class="player">
-      <h1>{{ station.name }}</h1>
-
-      <img src="/static/radio-icon.png" alt="Station" style="width: 100px; margin: 20px 0;">
-
-      <div class="controls">
-        <a href="/play/{{ stations.index(station) }}"><button>▶ Play</button></a>
-        <a href="/stop"><button>⏹ Stop</button></a>
-        <a href="/prev"><button>⏮ Prev</button></a>
-        <a href="/next"><button>⏭ Next</button></a>
-      </div>
-    </main>
-  </div>
+    </ul>
+    <div class="controls">
+        <a href="{{ url_for('stop') }}">🛑 Stop</a>
+    </div>
 </body>
 </html>
