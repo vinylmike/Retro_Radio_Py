@@ -1,21 +1,27 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, redirect, url_for
 import os
 import subprocess
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
 
 MUSIC_FOLDER = "/mnt/share/Pi_Music"
 mpv_process = None
 current_track = None
 
 def get_music_files():
-    return sorted([f for f in os.listdir(MUSIC_FOLDER) if f.lower().endswith(('.mp3', '.wav', '.flac'))])
+    return sorted([
+        f for f in os.listdir(MUSIC_FOLDER)
+        if f.lower().endswith(('.mp3', '.wav', '.flac'))
+    ])
 
 def play_track(filename):
     global mpv_process, current_track
     stop_track()
     filepath = os.path.join(MUSIC_FOLDER, filename)
-    mpv_process = subprocess.Popen(["mpv", filepath], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    mpv_process = subprocess.Popen(
+        ["mpv", "--no-terminal", "--volume=70", filepath],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    )
     current_track = filename
 
 def stop_track():
@@ -26,8 +32,8 @@ def stop_track():
 
 @app.route("/")
 def index():
-    files = get_music_files()
-    return render_template("index.html", tracks=files, current=current_track)
+    tracks = get_music_files()
+    return render_template("index.html", tracks=tracks, current=current_track)
 
 @app.route("/play/<filename>")
 def play(filename):

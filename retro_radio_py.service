@@ -1,0 +1,12 @@
+[Unit]
+Description=Retro Radio Py
+After=network.target
+
+[Service]
+User=vinylmike
+WorkingDirectory=/home/vinylmike/MINIMAL_PI_RADIO
+ExecStart=/usr/bin/python3 /home/vinylmike/MINIMAL_PI_RADIO/main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
