@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 User=vinylmike
-WorkingDirectory=/home/vinylmike/MINIMAL_PI_RADIO
-ExecStart=/usr/bin/python3 /home/vinylmike/MINIMAL_PI_RADIO/main.py
+WorkingDirectory=/home/vinylmike/Retro_Radio_Py
+ExecStart=/usr/bin/python3 /home/vinylmike/Retro_Radio_Py/main.py
 Restart=always
 
 [Install]
