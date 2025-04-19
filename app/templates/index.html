@@ -33,10 +33,17 @@
             margin-bottom: 10px;
         }
 
+        .now-playing span {
+            display: block;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
         .player-controls {
             display: flex;
             justify-content: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .player-controls button {
@@ -88,19 +95,36 @@
             color: inherit;
             display: block;
         }
+
+        .meta {
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        .meta span {
+            display: inline-block;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Retro Radio 🎶</h1>
+
         {% if current %}
-            <div class="now-playing">🎧 Now Playing: <strong>{{ current }}</strong></div>
+            <div class="now-playing">
+                <strong>{{ current.title or current.filename }}</strong>
+                <span>{{ current.artist }} — {{ current.album }}</span>
+                <span>Duration: {{ current.duration }}</span>
+            </div>
         {% endif %}
+
         <div class="player-controls">
             <a href="/prev"><button>⏮️ Previous</button></a>
             <a href="/stop"><button>🛑 Stop</button></a>
             <a href="/next"><button>⏭️ Next</button></a>
         </div>
+
         <div class="volume">
             <p>Volume: {{ volume }}%</p>
             <input type="range" min="0" max="100" value="{{ volume }}" onchange="setVolume(this.value)">
@@ -110,7 +134,16 @@
     <div class="track-list-container">
         <ul class="track-list">
             {% for track in tracks %}
-                <li><a href="{{ url_for('play', filename=track) }}">{{ track }}</a></li>
+                <li>
+                    <a href="{{ url_for('play', filename=track.filename) }}">
+                        <strong>{{ track.title or track.filename }}</strong><br>
+                        <div class="meta">
+                            <span>{{ track.artist }}</span>
+                            <span>{{ track.album }}</span>
+                            <span>{{ track.duration }}</span>
+                        </div>
+                    </a>
+                </li>
             {% endfor %}
         </ul>
     </div>

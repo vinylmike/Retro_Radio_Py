@@ -4,6 +4,10 @@ import subprocess
 import socket
 import json
 import time
+from mutagen import File
+from mutagen.mp3 import MP3
+from mutagen.flac import FLAC
+from mutagen.easyid3 import EasyID3
 
 app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
 
@@ -15,11 +19,30 @@ current_index = -1
 volume_level = 70
 ipc_socket_path = "/tmp/mpv-socket"
 
+# Extract metadata from audio file
+def extract_metadata(filepath):
+    metadata = {"filename": os.path.basename(filepath), "title": "", "artist": "", "album": "", "duration": ""}
+    try:
+        audio = File(filepath, easy=True)
+        if audio:
+            metadata["title"] = audio.get("title", [""])[0]
+            metadata["artist"] = audio.get("artist", [""])[0]
+            metadata["album"] = audio.get("album", [""])[0]
+            if isinstance(audio, MP3) or isinstance(audio, FLAC):
+                duration_sec = int(audio.info.length)
+                minutes = duration_sec // 60
+                seconds = duration_sec % 60
+                metadata["duration"] = f"{minutes}:{seconds:02d}"
+    except Exception as e:
+        print(f"[Metadata Error] {filepath}: {e}")
+    return metadata
+
 def get_music_files():
-    return sorted([
+    files = sorted([
         f for f in os.listdir(MUSIC_FOLDER)
         if f.lower().endswith(('.mp3', '.wav', '.flac'))
     ])
+    return [extract_metadata(os.path.join(MUSIC_FOLDER, f)) for f in files]
 
 def send_mpv_command(command_dict):
     try:
@@ -34,28 +57,25 @@ def play_track_by_index(index):
     global current_index, track_list
     if 0 <= index < len(track_list):
         current_index = index
-        play_track(track_list[index])
+        play_track(track_list[index]["filename"])
 
 def play_track(filename):
     global mpv_process, current_track, track_list, current_index
     stop_track()
     filepath = os.path.join(MUSIC_FOLDER, filename)
-    if filename in track_list:
-        current_index = track_list.index(filename)
-
+    for i, t in enumerate(track_list):
+        if t["filename"] == filename:
+            current_index = i
+            break
     cmd = [
-        "mpv",
-        "--no-terminal",
+        "mpv", "--no-terminal",
         f"--volume={volume_level}",
         "--audio-device=alsa/plughw:3,0",
         f"--input-ipc-server={ipc_socket_path}",
         filepath
     ]
-
     mpv_process = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     current_track = filename
-
-    # Wait briefly for socket to be ready
     for _ in range(10):
         if os.path.exists(ipc_socket_path):
             break
@@ -73,7 +93,8 @@ def stop_track():
 def index():
     global track_list
     track_list = get_music_files()
-    return render_template("index.html", tracks=track_list, current=current_track, volume=volume_level)
+    now_playing_metadata = next((t for t in track_list if t["filename"] == current_track), None)
+    return render_template("index.html", tracks=track_list, current=now_playing_metadata, volume=volume_level)
 
 @app.route("/play/<filename>")
 def play(filename):
