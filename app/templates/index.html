@@ -1,58 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Retro Radio</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 30px;
-        }
-        h1 {
-            color: #1db954;
-        }
-        .track-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 auto;
-            width: 50%;
-        }
-        .track-list li {
-            margin: 10px 0;
-            background-color: #222;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        .track-list a {
-            color: white;
-            text-decoration: none;
-        }
-        .track-list a:hover {
-            color: #1db954;
-        }
-        .controls {
-            margin-top: 20px;
-        }
-        .current {
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <h1>Retro Radio</h1>
-    {% if current %}
-        <div class="current">🎵 Now Playing: {{ current }}</div>
-    {% endif %}
-    <ul class="track-list">
-        {% for track in tracks %}
-            <li><a href="{{ url_for('play', filename=track) }}">{{ track }}</a></li>
-        {% endfor %}
-    </ul>
-    <div class="controls">
-        <a href="{{ url_for('stop') }}">🛑 Stop</a>
-    </div>
-</body>
-</html>
+<div class="controls">
+    <a href="{{ url_for('stop') }}">🛑 Stop</a>
+</div>
+
+<div class="volume">
+    <p>🔊 Volume: {{ volume }}%</p>
+    <input type="range" min="0" max="100" value="{{ volume }}" onchange="setVolume(this.value)">
+</div>
+
+<script>
+function setVolume(val) {
+    window.location.href = '/set_volume/' + val;
+}
+</script>
