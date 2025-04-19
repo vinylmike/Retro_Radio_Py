@@ -19,7 +19,7 @@ current_index = -1
 volume_level = 70
 ipc_socket_path = "/tmp/mpv-socket"
 
-# Extract metadata from audio file (No Album Art)
+# Extract metadata from audio file
 def extract_metadata(filepath):
     metadata = {"filename": os.path.basename(filepath), "title": "", "artist": "", "album": "", "duration": ""}
     try:
@@ -61,12 +61,16 @@ def play_track_by_index(index):
 
 def play_track(filename):
     global mpv_process, current_track, track_list, current_index
+    print(f"[DEBUG] Playing track: {filename}")  # Debugging: Print the track name
     stop_track()
     filepath = os.path.join(MUSIC_FOLDER, filename)
+    print(f"[DEBUG] Filepath: {filepath}")  # Debugging: Ensure the full path is correct
+    
     for i, t in enumerate(track_list):
         if t["filename"] == filename:
             current_index = i
             break
+
     cmd = [
         "mpv", "--no-terminal",
         f"--volume={volume_level}",
@@ -74,6 +78,7 @@ def play_track(filename):
         f"--input-ipc-server={ipc_socket_path}",
         filepath
     ]
+    print(f"[DEBUG] Executing command: {cmd}")  # Debugging: Command to run in subprocess
     mpv_process = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     current_track = filename
     for _ in range(10):
@@ -109,7 +114,6 @@ def index():
     track_list = get_music_files()
     now_playing_metadata = next((t for t in track_list if t["filename"] == current_track), None)
     
-    # Get current playback time and calculate remaining time
     current_time = get_playback_status()
     remaining_time = None
     if now_playing_metadata and current_time:
@@ -132,6 +136,7 @@ def index():
 
 @app.route("/play/<filename>")
 def play(filename):
+    print(f"[DEBUG] Attempting to play file: {filename}")  # Debugging: Checking the filename
     play_track(filename)
     return redirect(url_for("index"))
 
