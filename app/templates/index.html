@@ -97,14 +97,6 @@
       background-color: #1db954;
       color: black;
     }
-
-    .album-art {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 15px;
-      object-fit: cover;
-    }
   </style>
 </head>
 <body>
@@ -118,7 +110,6 @@
       {% if current %}
         <div><strong>{{ current.title or current.filename }}</strong></div>
         <div>{{ current.artist }} &bull; {{ current.album }} &bull; {{ current.duration }}</div>
-        <img class="album-art" src="{{ current.album_art }}" alt="Album Art">
       {% endif %}
 
       <div class="controls">
@@ -145,13 +136,8 @@
         </thead>
         <tbody>
           {% for track in tracks %}
-            <tr onclick="location.href='{{ url_for('play', filename=track.filename) }}'" class="{% if current and current.filename == track.filename %}playing{% endif %}">
-              <td>
-                {% if track.album_art %}
-                  <img class="album-art" src="{{ track.album_art }}" alt="Album Art">
-                {% endif %}
-                {{ track.title or track.filename }}
-              </td>
+            <tr onclick="playTrack('{{ track.filename }}')" class="{% if current and current.filename == track.filename %}playing{% endif %}">
+              <td>{{ track.title or track.filename }}</td>
               <td>{{ track.artist }}</td>
               <td>{{ track.album }}</td>
               <td>{{ track.duration }}</td>
@@ -165,6 +151,14 @@
   <script>
     function setVolume(val) {
       window.location.href = '/set_volume/' + val;
+    }
+
+    function playTrack(filename) {
+      fetch('/play/' + filename)
+        .then(response => response.text())
+        .then(data => {
+          window.location.reload();  // Reload page after playing the song
+        });
     }
   </script>
 </body>
