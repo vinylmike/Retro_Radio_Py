@@ -21,7 +21,7 @@ ipc_socket_path = "/tmp/mpv-socket"
 
 # Extract metadata from audio file
 def extract_metadata(filepath):
-    metadata = {"filename": os.path.basename(filepath), "title": "", "artist": "", "album": "", "duration": ""}
+    metadata = {"filename": os.path.basename(filepath), "title": "", "artist": "", "album": "", "duration": "", "album_art": "/static/default_album_art.jpg"}
     try:
         audio = File(filepath, easy=True)
         if audio:
@@ -33,6 +33,9 @@ def extract_metadata(filepath):
                 minutes = duration_sec // 60
                 seconds = duration_sec % 60
                 metadata["duration"] = f"{minutes}:{seconds:02d}"
+                # Look for album art
+                if audio.tags.get('APIC'):
+                    metadata["album_art"] = audio.tags['APIC'][0]
     except Exception as e:
         print(f"[Metadata Error] {filepath}: {e}")
     return metadata
