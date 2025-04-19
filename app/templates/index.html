@@ -1,14 +1,116 @@
-<div class="controls">
-    <a href="{{ url_for('stop') }}">🛑 Stop</a>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Retro Radio</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-<div class="volume">
-    <p>🔊 Volume: {{ volume }}%</p>
-    <input type="range" min="0" max="100" value="{{ volume }}" onchange="setVolume(this.value)">
-</div>
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 40px 20px;
+        }
 
-<script>
-function setVolume(val) {
-    window.location.href = '/set_volume/' + val;
-}
-</script>
+        h1 {
+            color: #1db954;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .now-playing {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .player-controls button {
+            background-color: #1db954;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .volume {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        input[type=range] {
+            width: 200px;
+        }
+
+        ul.track-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.track-list li {
+            background: #222;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            transition: 0.2s;
+        }
+
+        ul.track-list li:hover {
+            background: #1db954;
+            color: #000;
+        }
+
+        ul.track-list a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Retro Radio 🎶</h1>
+
+        {% if current %}
+            <div class="now-playing">🎧 Now Playing: <strong>{{ current }}</strong></div>
+        {% endif %}
+
+        <div class="player-controls">
+            <a href="/prev"><button>⏮️ Previous</button></a>
+            <a href="/stop"><button>🛑 Stop</button></a>
+            <a href="/next"><button>⏭️ Next</button></a>
+        </div>
+
+        <div class="volume">
+            <p>Volume: {{ volume }}%</p>
+            <input type="range" min="0" max="100" value="{{ volume }}" onchange="setVolume(this.value)">
+        </div>
+
+        <ul class="track-list">
+            {% for track in tracks %}
+                <li><a href="{{ url_for('play', filename=track) }}">{{ track }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        function setVolume(val) {
+            window.location.href = '/set_volume/' + val;
+        }
+    </script>
+</body>
+</html>
