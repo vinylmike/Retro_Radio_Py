@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Use first argument as the commit message, fallback to "Update"
+MESSAGE=${1:-"Update"}
+
+echo "📦 Adding changes..."
+git add .
+
+echo "📝 Committing..."
+git commit -m "$MESSAGE"
+
+echo "🚀 Pushing to GitHub..."
+git push origin main
+
+echo "✅ Done!"
